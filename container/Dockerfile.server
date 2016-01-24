@@ -1,0 +1,13 @@
+FROM fedora:23
+MAINTAINER "Fabian Deutsch" <fabiand@redhat.com>
+ENV container docker
+
+RUN dnf install -y libvirt-daemon-kvm augeas
+
+RUN augtool set /files/etc/libvirt/libvirtd.conf/listen_tls 0
+RUN augtool set /files/etc/libvirt/libvirtd.conf/listen_tcp 1
+RUN echo -n admin | saslpasswd2 -p -a libvirt admin
+
+EXPOSE 16509
+
+CMD ["/usr/sbin/libvirtd", "--listen"]

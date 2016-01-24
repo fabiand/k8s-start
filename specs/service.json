@@ -1,0 +1,24 @@
+{
+    "kind": "Service",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "vm"
+    },
+    "spec": {
+        "selector": {
+            "app": "virt"
+        },
+        "ports": [
+            {
+                "protocol": "TCP",
+                "port": 16509,
+                "targetPort": 16509
+            },
+            {
+                "protocol": "TCP",
+                "port": 5900,
+                "targetPort": 5900
+            }
+        ]
+    }
+}
