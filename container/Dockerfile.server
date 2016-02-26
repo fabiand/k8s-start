@@ -13,6 +13,10 @@ RUN augtool set /files/etc/libvirt/qemu.conf/vnc_listen 0.0.0.0
 RUN augtool set /files/etc/libvirt/qemu.conf/vnc_tls 0
 RUN augtool set /files/etc/libvirt/qemu.conf/vnc_sasl 0
 
+RUN augtool set /files/etc/libvirt/qemu.conf/user root
+RUN augtool set /files/etc/libvirt/qemu.conf/group root
+RUN augtool set /files/etc/libvirt/qemu.conf/dynamic_ownership 1
+
 EXPOSE 16509
 
 CMD ["/usr/sbin/libvirtd", "--listen"]
