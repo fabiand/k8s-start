@@ -17,6 +17,4 @@ LMC="livemedia-creator --ram 2048 --vcpus 4"
 export LMC
 bash -ex automation/build-artifacts.sh || { tail -n40 *.log ; exit 1 ; }
 
-make check
-
-find
+mv -v exported-artifacts /pwd/

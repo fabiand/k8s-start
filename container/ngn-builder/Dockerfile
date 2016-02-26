@@ -23,7 +23,9 @@ lorax \
 python-nose \
 python-pyflakes \
 python-pep8 \
-virt-install
+virt-install \
+rpm-build \
+createrepo
 
 ADD build-ngn.sh /
 
