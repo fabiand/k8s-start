@@ -11,3 +11,8 @@ libvirtd: Dockerfile.server
 
 libvirt-client: Dockerfile.client start-controller.sh
 	docker build -f $< --tag fabiand/libvirt-client:latest .
+
+node-next-builder: N=fabiand/node-next-builder:latest
+node-next-builder: Dockerfile.ngn-builder
+	docker build -f $< --tag $(N) .
+	docker push $(N)
