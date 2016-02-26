@@ -1,4 +1,5 @@
-FROM fedora:23
+FROM fabiand/libvirtd:latest
+
 MAINTAINER "Fabian Deutsch" <fabiand@redhat.com>
 ENV container docker
 
@@ -15,10 +16,7 @@ grubby \
 kpartx \
 squashfs-tools \
 sudo \
-libvirt-daemon-qemu \
-libvirt-daemon-kvm \
 libvirt \
-libvirt-client \
 libvirt-python \
 libvirt-python3 \
 lorax \

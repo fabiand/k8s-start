@@ -1,18 +1,13 @@
 
 
-push: build
-	docker push fabiand/libvirtd:latest
-	docker push fabiand/libvirt-client:latest
+.PHONY: hl ll ngn
 
-build: libvirtd libvirt-client
+hl: host controller ll
 
-libvirtd: Dockerfile.server
-	docker build -f $< --tag fabiand/libvirtd:latest .
+ll: libvirt
 
-libvirt-client: Dockerfile.client start-controller.sh
-	docker build -f $< --tag fabiand/libvirt-client:latest .
+ngn: ngn-builder
 
-node-next-builder: N=fabiand/node-next-builder:latest
-node-next-builder: Dockerfile.ngn-builder
-	docker build -f $< --tag $(N) .
-	docker push $(N)
+%: %/Dockerfile $(wildcard $*/*)
+	docker build -f $< --tag fabiand/$*:latest $*
+	docker push fabiand/$*:latest
