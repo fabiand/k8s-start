@@ -6,7 +6,12 @@ RUN dnf install -y libvirt-daemon-kvm augeas
 
 RUN augtool set /files/etc/libvirt/libvirtd.conf/listen_tls 0
 RUN augtool set /files/etc/libvirt/libvirtd.conf/listen_tcp 1
-RUN echo -n admin | saslpasswd2 -p -a libvirt admin
+RUN augtool set /files/etc/libvirt/libvirtd.conf/auth_tcp none
+
+RUN augtool set /files/etc/libvirt/qemu.conf/spice_listen 0.0.0.0
+RUN augtool set /files/etc/libvirt/qemu.conf/vnc_listen 0.0.0.0
+RUN augtool set /files/etc/libvirt/qemu.conf/vnc_tls 0
+RUN augtool set /files/etc/libvirt/qemu.conf/vnc_sasl 0
 
 EXPOSE 16509
 

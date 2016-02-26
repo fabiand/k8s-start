@@ -1,17 +1,43 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: virt
+  name: libvirt
   labels:
-  - app: virt
+    app: libvirt
 spec:
+  hostNetwork: true
   containers:
-  - name: daemon
-    image: docker.io/fabiand/libvirtd:latest
-    ports:
-    - containerPort: 5900
-    - containerPort: 16509
-    securityContext:
-      privileged: true
-  - name: controller
-    image: docker.io/fabiand/libvirt-client:latest
+    - name: daemon
+      image: docker.io/fabiand/libvirtd:latest
+      ports:
+      - containerPort: 1923
+        name: spice
+      - containerPort: 5900
+        name: vnc
+      - containerPort: 16509
+        name: libvirt
+      securityContext:
+        privileged: true
+      command: ["libvirtd", "--listen", "--verbose"]
+    - name: controller
+      image: docker.io/fabiand/libvirt-client:latest
+      volumeMounts:
+      - name: dev
+        mountPath: /dev
+      - name: sys
+        mountPath: /sys
+      - name: etcsysconfignetworkscripts
+        mountPath: /etc/sysconfig/network-scripts
+  volumes:
+  - name: dev
+    hostPath:
+      path: /dev
+  - name: sys
+    hostPath:
+      path: /sys
+  - name: proc
+    hostPath:
+      path: /proc
+  - name: etcsysconfignetworkscripts
+    hostPath:
+      path: /etc/sysconfig/network-scripts

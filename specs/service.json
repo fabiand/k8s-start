@@ -6,18 +6,26 @@
     },
     "spec": {
         "selector": {
-            "app": "virt"
+            "app": "libvirt"
         },
         "ports": [
             {
                 "protocol": "TCP",
-                "port": 16509,
-                "targetPort": 16509
+                "port": 1923,
+                "targetPort": 1923,
+                "name": "spice"
             },
             {
                 "protocol": "TCP",
                 "port": 5900,
-                "targetPort": 5900
+                "targetPort": 5900,
+                "name": "vnc"
+            },
+            {
+                "protocol": "TCP",
+                "port": 16509,
+                "targetPort": 16509,
+                "name": "libvirt"
             }
         ]
     }
