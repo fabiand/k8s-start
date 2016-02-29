@@ -9,5 +9,5 @@ ll: libvirt
 ngn: ngn-builder
 
 %: %/Dockerfile $(wildcard $*/*)
-	docker build -f $< --tag fabiand/$*:latest $*
-	docker push fabiand/$*:latest
+	docker build -f $< --tag docker.io/fabiand/$*:latest $*
+	docker push docker.io/fabiand/$*:latest
