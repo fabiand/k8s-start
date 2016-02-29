@@ -2,7 +2,7 @@
 
 .PHONY: hl ll ngn
 
-hl: host controller ll
+hl: compute controller ll
 
 ll: libvirt
 
