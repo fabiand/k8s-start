@@ -27,22 +27,54 @@ import json
 import jsonpath_rw
 import xml.etree.ElementTree as ET
 import os
-import tempfile
 
 
 def jsonpath(expr, objs):
     return jsonpath_rw.parse(expr).find(objs)
 
 
-def kubectl(args, expr=None):
-    argv = ["kubectl", "-o", "json"] + args
+def kubectl(args, expr=None, **kwargs):
+    app = os.environ.get("KUBECTL", "kubectl")
+    argv = [app] + args
     print(argv)
-    return None
-    data = subprocess.check_output(argv)
-    objs = json.loads(data)
+    data = subprocess.check_output(argv, **kwargs)
+    data = data.decode("utf-8")
+    print(data)
     if expr:
+        objs = json.loads(data)
         return jsonpath(expr, objs)
-    return objs
+    return data
+
+
+class Git():
+    """Assumes that origin and master are setup correctly
+    """
+    path = None
+
+    def __init__(self, path):
+        self.path = path
+        assert self.path
+
+    def _git(self, args):
+        argv = ["git", "-C", self.path] + args
+        print(argv)
+        return subprocess.check_output(argv)
+
+    def pull(self):
+        self._git(["pull"])
+
+    def push(self):
+        self._git(["push"])
+
+    def rm(self, fn, force=False):
+        self._git(["rm", fn]
+                  + (["-f"] if force else []))
+
+    def add(self, fn):
+        self._git(["add", fn])
+
+    def commit(self, commitmsg="Auto commit"):
+        self._git(["commit", "-s", "-m", commitmsg])
 
 
 class GitDomainStore():
@@ -54,28 +86,38 @@ class GitDomainStore():
     >>> store.list()
     ['foo']
     """
-    GIT_PATH = "/var/tmp/ovirt-controller/store"
+    git = None
 
-    def __init__(self):
-        try:
-            os.makedirs(self.GIT_PATH)
-        except:
-            pass
+    def __init__(self, path=os.environ.get("DOM_STORE_GIT_PATH")):
+        assert path
+        assert os.path.isdir(path)
+        assert os.path.isdir(path + "/.git")
+        self.git = Git(path)
 
     def list(self):
-        return os.listdir(self.GIT_PATH)
+        return [fn for fn in os.listdir(self.git.path)
+                if not fn.startswith(".") and not fn.startswith("/")]
 
     def add(self, domname, data):
         assert domname not in self.list()
-        with open(self.GIT_PATH + "/" + domname, "w") as dst:
+        self.git.pull()
+        fn = self.git.path + "/" + domname
+        with open(fn, "w") as dst:
             dst.write(data)
+        self.git.add(domname)
+        self.git.commit("Added %s" % domname)
+        self.git.push()
 
     def remove(self, domname):
         assert domname in self.list()
-        os.unlink(self.GIT_PATH + "/" + domname)
+        self.git.pull()
+        self.git.rm(domname)
+        self.git.commit("Removed %s" % domname)
+        self.git.push()
 
     def get(self, domname):
-        with open(self.GIT_PATH + "/" + domname, "r") as src:
+        self.git.pull()
+        with open(self.git.path + "/" + domname, "r") as src:
             return src.read()
 
 
@@ -84,45 +126,82 @@ class KubeDomainRuntime():
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: ovirt-compute-rc-{domname}
+  name: ovirt-compute-rc-{{domname}}
   labels:
     app: ovirt-compute-rc
+    domain: {{domname}}
 spec:
   replicas: 1
   template:
     metadata:
       labels:
         app: ovirt-compute
-        domain: {domname}
+        domain: {{domname}}
     spec:
       containers:
       - name: controller
         image: docker.io/fabiand/compute:latest
+        securityContext:
+          privileged: true
         ports:
-        - containerPort: 8080
-    """
+        - containerPort: 1923
+          name: spice
+        - containerPort: 5900
+          name: vnc
+        - containerPort: 16509
+          name: libvirt
+        env:
+        - name: LIBVIRT_DOMAIN
+          value: {{domname}}
+        - name: LIBVIRT_DOMAIN_URL
+          value: {LIBVIRT_DOMAIN_URL_BASE}/{{domname}}
+    """.format(LIBVIRT_DOMAIN_URL_BASE=os.environ["LIBVIRT_DOMAIN_URL_BASE"])
 
-    rc_selector = ["-l", "app=ovirt-compute-rc"]
-
-    def _k(self, args, expr=None):
-        return kubectl(args, expr)
+    VM_SVC_SPEC = """
+apiVersion: v1
+kind: Service
+metadata:
+  name: libvirt-{{domname}}
+  labels:
+    app: ovirt-compute-service
+    domain: {{domname}}
+spec:
+  selector:
+    app: ovirt-compute
+    domain: {{domname}}
+  ports:
+  - name: libvirt
+    port: 16509
+  - name: vnc
+    port: 5900
+    """.format()
 
     def list(self):
-        matches = kubectl(self.rc_selector + ["get", "rc"],
+        matches = kubectl(["-l", "app=ovirt-compute-rc",
+                          "get", "rc", "-ojson"],
                           "items[*].metadata.labels.domain")
         return [m.value for m in matches] if matches else []
 
     def create(self, domname):
-        with tempfile.NamedTemporaryFile(mode="wt") as tmp:
-            spec = self.VM_RC_SPEC.format(domname=domname)
+        def create(spec):
+            spec = spec.format(domname=domname)
             print(spec)
-            tmp.write(spec)
-            tmp.flush()
-            self._k(["create", "-f", tmp.name])
+            kubectl(["create", "-f", "-"], input=bytes(spec, encoding="utf8"))
+
+        create(self.VM_RC_SPEC)
+        create(self.VM_SVC_SPEC)
 
     def delete(self, domname):
-        self._k(["delete", "rc",
+        kubectl(["delete", "rc",
                  "-l", "domain=%s" % domname])
+
+        kubectl(["delete", "svc",
+                 "-l", "domain=%s" % domname])
+
+    def describe(self, domname):
+        matches = kubectl(["get", "service", "-ojson",
+                           "-l", "domain=%s" % domname])
+        return matches
 
 
 class Domains():
@@ -148,4 +227,7 @@ class Domains():
 
     def show(self, domname):
         return self.store.get(domname)
+
+    def status(self, domname):
+        return str(self.runtime.describe(domname))
 

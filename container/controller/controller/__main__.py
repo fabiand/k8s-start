@@ -38,6 +38,10 @@ def doms_list():
 def doms_show(name):
     return doms.show(name)
 
+@app.route('/domains/<name>/status', method='GET')
+def doms_status(name):
+    return doms.status(name)
+
 @app.route('/domains/<name>', method='DELETE' )
 def doms_delete(name):
     return doms.delete(name)

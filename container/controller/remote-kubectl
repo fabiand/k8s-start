@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+
+set -x
+ssh virtlab114.virt.lab.eng.bos.redhat.com -lroot -- kubectl $@
