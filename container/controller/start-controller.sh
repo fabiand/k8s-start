@@ -2,24 +2,12 @@
 
 set -x
 
-on_sigint() {
-  echo "Script exit"
-}
+export PYTHONPATH=.
+export DOM_STORE_GIT_PATH=/var/tmp/ovirt-controller/store/
+export LIBVIRT_DOMAIN_URL_BASE=http://git.engineering.redhat.com/git/users/fdeutsch/domxmls.git/plain/
+export KUBECTL="$PWD/remote-kubectl"
 
-trap on_sigint 0
+# FIXME /var/tmp/ovirt-controller/store needs to be initialized
 
-
-export LIBVIRT_DEFAULT_URI="qemu+tcp://admin:admin@127.0.0.1/system"
-
-while true;
-do
-  date
-  virsh list --all
-  sleep 5
-done
-
-#echo -e "$LIBVIRT_DOMAIN_XML" | virsh define -
-#virsh start "$LIBVIRT_DOMAIN"
-#virsh event --loop --all "$LIBVIRT_DOMAIN"
-
+python3 -m controller
 
