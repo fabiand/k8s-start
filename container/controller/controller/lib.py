@@ -138,8 +138,9 @@ spec:
         app: ovirt-compute
         domain: {{domname}}
     spec:
+      hostNetwork: True
       containers:
-      - name: controller
+      - name: compute
         image: docker.io/fabiand/compute:latest
         securityContext:
           privileged: true
