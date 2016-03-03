@@ -24,13 +24,13 @@
 
 import subprocess
 import json
-import jsonpath_rw
+import jsonpath_rw_ext
 import xml.etree.ElementTree as ET
 import os
 
 
 def jsonpath(expr, objs):
-    return jsonpath_rw.parse(expr).find(objs)
+    return jsonpath_rw_ext.parse(expr).find(objs)
 
 
 def kubectl(args, expr=None, **kwargs):
