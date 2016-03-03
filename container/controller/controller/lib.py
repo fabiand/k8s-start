@@ -210,10 +210,16 @@ spec:
             executor.submit(kubectl, ["delete", "svc",
                                       "-l", "domain=%s" % domname])
 
-    def describe(self, domname):
-        matches = kubectl(["get", "service", "-ojson",
-                           "-l", "domain=%s" % domname])
-        return matches
+    def connection_uri(self, domname):
+        data = kubectl(["get", "service", "-ojson",
+                        "-l", "domain=%s" % domname])
+        # FIXME directly fetch for instance
+        parsed = json.loads(data)
+        clusterip = jsonpath("items[0].spec.clusterIP",
+                             parsed)[0].value
+        port = jsonpath("items[0].spec.ports[?(name='libvirt')].port",
+                        parsed)[0].value
+        return "qemu+tcp://%s:%s/system" % (clusterip, port)
 
 
 class Domains():
@@ -241,6 +247,6 @@ class Domains():
     def show(self, domname):
         return self.store.get(domname)
 
-    def status(self, domname):
-        return str(self.runtime.describe(domname))
+    def connection_uri(self, domname):
+        return str(self.runtime.connection_uri(domname))
 
