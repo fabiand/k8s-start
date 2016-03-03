@@ -27,7 +27,9 @@ import json
 import jsonpath_rw_ext
 import xml.etree.ElementTree as ET
 import os
+import concurrent.futures
 
+THREADS = 5
 
 def jsonpath(expr, objs):
     return jsonpath_rw_ext.parse(expr).find(objs)
@@ -196,15 +198,17 @@ spec:
             print(spec)
             kubectl(["create", "-f", "-"], input=bytes(spec, encoding="utf8"))
 
-        create(self.VM_RC_SPEC)
-        create(self.VM_SVC_SPEC)
+        with concurrent.futures.ThreadPoolExecutor(THREADS) as executor:
+            executor.submit(create, self.VM_RC_SPEC)
+            executor.submit(create, self.VM_SVC_SPEC)
 
     def delete(self, domname):
-        kubectl(["delete", "rc",
-                 "-l", "domain=%s" % domname])
+        with concurrent.futures.ThreadPoolExecutor(THREADS) as executor:
+            executor.submit(kubectl, ["delete", "rc",
+                                      "-l", "domain=%s" % domname])
 
-        kubectl(["delete", "svc",
-                 "-l", "domain=%s" % domname])
+            executor.submit(kubectl, ["delete", "svc",
+                                      "-l", "domain=%s" % domname])
 
     def describe(self, domname):
         matches = kubectl(["get", "service", "-ojson",
@@ -230,8 +234,9 @@ class Domains():
         self.runtime.create(domname)
 
     def delete(self, domname):
-        self.store.remove(domname)
-        self.runtime.delete(domname)
+        with concurrent.futures.ThreadPoolExecutor(THREADS) as executor:
+            executor.submit(self.store.remove, domname)
+            executor.submit(self.runtime.delete, domname)
 
     def show(self, domname):
         return self.store.get(domname)
