@@ -29,24 +29,24 @@ import xml.etree.ElementTree as ET
 doms = Domains()
 app = Bottle()
 
-@app.route('/domains/')
+@app.route('/v1/domains/')
 def doms_list():
     return {"available": doms.list_available(),
             "running": doms.list_running()}
 
-@app.route('/domains/<name>', method='GET')
+@app.route('/v1/domains/<name>', method='GET')
 def doms_show(name):
     return doms.show(name)
 
-@app.route('/domains/<name>/status', method='GET')
+@app.route('/v1/domains/<name>/connection/uri', method='GET')
 def doms_status(name):
-    return doms.status(name)
+    return doms.connection_uri(name)
 
-@app.route('/domains/<name>', method='DELETE' )
+@app.route('/v1/domains/<name>', method='DELETE' )
 def doms_delete(name):
     return doms.delete(name)
 
-@app.route('/domains/<name>', method='PUT')
+@app.route('/v1/domains/<name>', method='PUT')
 def doms_create(name):
     domxml = request.body.read().decode("utf8")
     return doms.create(name, domxml)
