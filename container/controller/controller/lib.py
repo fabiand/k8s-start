@@ -156,6 +156,13 @@ spec:
           value: {{domname}}
         - name: LIBVIRT_DOMAIN_URL
           value: {LIBVIRT_DOMAIN_URL_BASE}/{{domname}}
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "1000m"
+          limits:
+            memory: "1024Mi"
+            cpu: "4000m"
     """.format(LIBVIRT_DOMAIN_URL_BASE=os.environ["LIBVIRT_DOMAIN_URL_BASE"])
 
     VM_SVC_SPEC = """
