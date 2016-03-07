@@ -1,3 +1,0 @@
-How to run:
-
-$ clear ; PYTHONPATH=. DOM_STORE_GIT_PATH=/var/tmp/ovirt-controller/store/ LIBVIRT_DOMAIN_URL_BASE=http://git.engineering.redhat.com/git/users/fdeutsch/domxmls.git/plain/ KUBECTL="$PWD/remote-kubectl" python3 -m controller

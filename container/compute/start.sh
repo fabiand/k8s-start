@@ -13,9 +13,8 @@ symlink_default_nic_to_well_known_name() {
 
 sleep 3
 
-if [[ -n "$LIBVIRT_DOMAIN_URL" ]]; then
-  curl -L -o dom.xml "$LIBVIRT_DOMAIN_URL"
-  virsh define dom.xml
-fi
+curl -L -o dom.xml "$DOMAIN_HTTP_URL"
+
+virsh define dom.xml
 
 wait

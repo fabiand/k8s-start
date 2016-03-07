@@ -1,0 +1,51 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "ovirt-controller",
+    "labels":
+      {
+        "app": "ovirt-controller"
+      }
+  },
+  "spec": {
+    "containers": [
+      {
+        "name": "ovirt-controller",
+        "image": "docker.io/fabiand/controller:latest",
+        "imagePullPolicy": "Always",
+        "ports": [
+          {
+            "containerPort": 8080,
+            "name": "controller-rest"
+          }
+        ],
+        "env": [
+          {
+            "name": "FOO",
+            "value": "BAR"
+          },
+          {
+            "name": "POD_IP",
+            "valueFrom": {
+              "fieldRef": {
+                "fieldPath": "status.podIP"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "kubectl",
+        "image": "gcr.io/google_containers/kubectl:v0.18.0-120-gaeb4ac55ad12b1-dirty",
+        "imagePullPolicy": "Always",
+        "args": [
+          "proxy",
+          "-p",
+          "8001"
+        ]
+      }
+    ]
+  }
+}
+

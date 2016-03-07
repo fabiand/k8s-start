@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # vim: sw=4 et sts=4
 #
@@ -24,15 +24,14 @@
 
 import subprocess
 import json
-import jsonpath_rw_ext
 import xml.etree.ElementTree as ET
 import os
 import concurrent.futures
+from .utils import jsonpath
+from .store import EtcdDomainStore
 
-THREADS = 5
 
-def jsonpath(expr, objs):
-    return jsonpath_rw_ext.parse(expr).find(objs)
+THREADS = 2
 
 
 def kubectl(args, expr=None, **kwargs):
@@ -48,97 +47,22 @@ def kubectl(args, expr=None, **kwargs):
     return data
 
 
-class Git():
-    """Assumes that origin and master are setup correctly
-    """
-    path = None
-
-    def __init__(self, path):
-        self.path = path
-        assert self.path
-
-    def _git(self, args):
-        argv = ["git", "-C", self.path] + args
-        print(argv)
-        return subprocess.check_output(argv)
-
-    def pull(self):
-        self._git(["pull"])
-
-    def push(self):
-        self._git(["push"])
-
-    def rm(self, fn, force=False):
-        self._git(["rm", fn]
-                  + (["-f"] if force else []))
-
-    def add(self, fn):
-        self._git(["add", fn])
-
-    def commit(self, commitmsg="Auto commit"):
-        self._git(["commit", "-s", "-m", commitmsg])
-
-
-class GitDomainStore():
-    """Store some data in a git repository
-    FIXME git part needs impl.
-
-    >>> store = GitDomainStore()
-    >>> store.add("foo", "FOO")
-    >>> store.list()
-    ['foo']
-    """
-    git = None
-
-    def __init__(self, path=os.environ.get("DOM_STORE_GIT_PATH")):
-        assert path
-        assert os.path.isdir(path)
-        assert os.path.isdir(path + "/.git")
-        self.git = Git(path)
-
-    def list(self):
-        return [fn for fn in os.listdir(self.git.path)
-                if not fn.startswith(".") and not fn.startswith("/")]
-
-    def add(self, domname, data):
-        assert domname not in self.list()
-        self.git.pull()
-        fn = self.git.path + "/" + domname
-        with open(fn, "w") as dst:
-            dst.write(data)
-        self.git.add(domname)
-        self.git.commit("Added %s" % domname)
-        self.git.push()
-
-    def remove(self, domname):
-        assert domname in self.list()
-        self.git.pull()
-        self.git.rm(domname)
-        self.git.commit("Removed %s" % domname)
-        self.git.push()
-
-    def get(self, domname):
-        self.git.pull()
-        with open(self.git.path + "/" + domname, "r") as src:
-            return src.read()
-
-
 class KubeDomainRuntime():
     VM_RC_SPEC = """
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: ovirt-compute-rc-{{domname}}
+  name: ovirt-compute-rc-{DOMNAME}
   labels:
     app: ovirt-compute-rc
-    domain: {{domname}}
+    domain: {DOMNAME}
 spec:
   replicas: 1
   template:
     metadata:
       labels:
         app: ovirt-compute
-        domain: {{domname}}
+        domain: {DOMNAME}
     spec:
       hostNetwork: True
       containers:
@@ -155,9 +79,9 @@ spec:
           name: libvirt
         env:
         - name: LIBVIRT_DOMAIN
-          value: {{domname}}
-        - name: LIBVIRT_DOMAIN_URL
-          value: {LIBVIRT_DOMAIN_URL_BASE}/{{domname}}
+          value: {DOMNAME}
+        - name: DOMAIN_HTTP_URL
+          value: {DOMAIN_HTTP_URL}
         resources:
           requests:
             memory: "128Mi"
@@ -165,26 +89,27 @@ spec:
           limits:
             memory: "1024Mi"
             cpu: "4000m"
-    """.format(LIBVIRT_DOMAIN_URL_BASE=os.environ["LIBVIRT_DOMAIN_URL_BASE"])
+    """
+
 
     VM_SVC_SPEC = """
 apiVersion: v1
 kind: Service
 metadata:
-  name: libvirt-{{domname}}
+  name: libvirt-{DOMNAME}
   labels:
     app: ovirt-compute-service
-    domain: {{domname}}
+    domain: {DOMNAME}
 spec:
   selector:
     app: ovirt-compute
-    domain: {{domname}}
+    domain: {DOMNAME}
   ports:
   - name: libvirt
     port: 16509
   - name: vnc
     port: 5900
-    """.format()
+    """
 
     def list(self):
         matches = kubectl(["-l", "app=ovirt-compute-rc",
@@ -194,7 +119,12 @@ spec:
 
     def create(self, domname):
         def create(spec):
-            spec = spec.format(domname=domname)
+            env = {"DOMNAME": domname,
+                   "DOMAIN_HTTP_URL": "%s/%s" % (os.environ["POD_IP"],
+                                                 domname)
+                  }
+
+            spec = spec.format(**env)
             print(spec)
             kubectl(["create", "-f", "-"], input=bytes(spec, encoding="utf8"))
 
@@ -223,7 +153,7 @@ spec:
 
 
 class Domains():
-    def __init__(self, store_klass=GitDomainStore,
+    def __init__(self, store_klass=EtcdDomainStore,
                  runtime_klass=KubeDomainRuntime):
         self.store = store_klass()
         self.runtime = runtime_klass()
@@ -252,13 +182,11 @@ class Domains():
         self.runtime.create(domname)
 
     def delete(self, domname):
-        with concurrent.futures.ThreadPoolExecutor(THREADS) as executor:
-            executor.submit(self.store.remove, domname)
-            executor.submit(self.runtime.delete, domname)
+        self.store.remove(domname)
+        self.runtime.delete(domname)
 
     def show(self, domname):
         return self.store.get(domname)
 
     def connection_uri(self, domname):
         return str(self.runtime.connection_uri(domname))
-
