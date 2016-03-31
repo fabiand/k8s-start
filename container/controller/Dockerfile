@@ -7,4 +7,6 @@ RUN dnf install -y libvirt-client kubernetes-client python3-bottle python3-jsonp
 COPY controller /controller
 ADD start-controller.sh /
 
+EXPOSE 8080
+
 CMD ["/start-controller.sh"]
