@@ -2,9 +2,10 @@ FROM fedora:23
 MAINTAINER "Fabian Deutsch" <fabiand@redhat.com>
 ENV container docker
 
-RUN dnf install -y libvirt-client kubernetes-client
+RUN dnf install -y libvirt-client kubernetes-client python3-bottle
+RUN pip3 install jsonpath-rw-ext
 
-ADD controller /
+COPY controller /controller
 ADD start-controller.sh /
 
 CMD ["/start-controller.sh"]
