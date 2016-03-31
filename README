@@ -1,0 +1,15 @@
+k8s-start
+---------
+This will start containers to get a working k8s
+
+container
+---------
+Directory with definitions for all containers required
+
+manifests
+---------
+Required by k8s-start to work in privileged mode
+
+specs
+-----
+Specs to create k8s objects
