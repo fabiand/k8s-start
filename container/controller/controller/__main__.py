@@ -22,12 +22,17 @@
 # Author(s): Fabian Deutsch <fabiand@redhat.com>
 #
 
-from bottle import Bottle, request
+from bottle import Bottle, request, response
 from controller.lib import Domains
 
 
 doms = Domains()
 app = Bottle()
+
+
+@app.hook('after_request')
+def enable_cors():
+    response.headers['Access-Control-Allow-Origin'] = '*'
 
 
 @app.route('/v1/domains/')
