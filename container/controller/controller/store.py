@@ -25,7 +25,6 @@
 import subprocess
 import os
 import json
-from pprint import pprint
 from .utils import jsonpath
 
 
@@ -54,7 +53,7 @@ class Etcd():
         cmd = ["-L", "-X", method]
         cmd += [url]
         if method == "PUT" or data:
-            assert method == "PUT" and not data is None
+            assert method == "PUT" and data is not None
             cmd += ["--data-urlencode", "value@-"]
             print("Data", data)
             return curl(cmd, input=bytes(data, encoding="utf8"))
@@ -104,11 +103,10 @@ class InMemoryDomainStore():
         return self.memory.keys()
 
     def add(self, domname, data):
-        return self.memory[domname] = data
+        self.memory[domname] = data
 
     def remove(self, domname):
         del self.memory[domname]
 
     def get(self, domname):
         return self.memory[domname]
-

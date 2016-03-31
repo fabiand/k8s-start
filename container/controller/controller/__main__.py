@@ -24,32 +24,37 @@
 
 from bottle import Bottle, request
 from controller.lib import Domains
-import xml.etree.ElementTree as ET
+
 
 doms = Domains()
 app = Bottle()
+
 
 @app.route('/v1/domains/')
 def doms_list():
     return {"available": doms.list_available(),
             "running": doms.list_running()}
 
+
 @app.route('/v1/domains/<name>', method='GET')
 def doms_show(name):
     return doms.show(name)
+
 
 @app.route('/v1/domains/<name>/connection/uri', method='GET')
 def doms_status(name):
     return doms.connection_uri(name)
 
+
 @app.route('/v1/domains/<name>', method='DELETE')
 def doms_delete(name):
     return doms.delete(name)
+
 
 @app.route('/v1/domains/<name>', method='PUT')
 def doms_create(name):
     domxml = request.body.read().decode("utf8")
     return doms.create(name, domxml)
 
-app.run(host='localhost', port=8080, debug=True, reloader=True)
 
+app.run(host='localhost', port=8080, debug=True, reloader=True)
