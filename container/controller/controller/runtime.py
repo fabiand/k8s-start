@@ -50,16 +50,16 @@ class KubeDomainRuntime():
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: ovirt-compute-rc-{DOMNAME}
+  name: compute-rc-{DOMNAME}
   labels:
-    app: ovirt-compute-rc
+    app: compute-rc
     domain: {DOMNAME}
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: ovirt-compute
+        app: compute
         domain: {DOMNAME}
     spec:
       hostNetwork: True
@@ -95,11 +95,11 @@ kind: Service
 metadata:
   name: libvirt-{DOMNAME}
   labels:
-    app: ovirt-compute-service
+    app: compute-service
     domain: {DOMNAME}
 spec:
   selector:
-    app: ovirt-compute
+    app: compute
     domain: {DOMNAME}
   ports:
   - name: libvirt
@@ -109,7 +109,7 @@ spec:
     """
 
     def list(self):
-        matches = kubectl(["-l", "app=ovirt-compute-rc",
+        matches = kubectl(["-l", "app=compute-rc",
                           "get", "rc", "-ojson"],
                           "items[*].metadata.labels.domain")
         return [m.value for m in matches] if matches else []

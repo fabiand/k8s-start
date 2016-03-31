@@ -2,16 +2,16 @@
   "kind": "Pod",
   "apiVersion": "v1",
   "metadata": {
-    "name": "ovirt-controller",
+    "name": "controller",
     "labels":
       {
-        "app": "ovirt-controller"
+        "app": "controller"
       }
   },
   "spec": {
     "containers": [
       {
-        "name": "ovirt-controller",
+        "name": "controller",
         "image": "docker.io/fabiand/controller:latest",
         "imagePullPolicy": "Always",
         "ports": [
