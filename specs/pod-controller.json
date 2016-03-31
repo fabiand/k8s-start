@@ -47,15 +47,15 @@
       },
       {
         "name": "etcd",
-        "image": "gcr.io/google_containers/etcd:2.0.12"
+        "image": "gcr.io/google_containers/etcd:2.0.12",
         "imagePullPolicy": "Always",
-	"entrypoint": [
+	      "command": [
           "/usr/local/bin/etcd",
           "--addr=127.0.0.1:4001",
           "--bind-addr=0.0.0.0:4001",
           "--data-dir=/var/etcd/data"
         ],
-        "volumes": [
+        "volumeMounts": [
           {
             "name": "etcddata",
             "mountPath": "/var/etcd/data"
