@@ -9,12 +9,12 @@
   },
   "spec": {
     "selector": {
-      "app": "controller",
+      "app": "controller"
     },
     "ports": [
       {
         "name": "controller-rest",
-        "port": "8080"
+        "port": 8080
       }
     ]
   }
