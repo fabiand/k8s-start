@@ -57,4 +57,4 @@ def doms_create(name):
     return doms.create(name, domxml)
 
 
-app.run(host='localhost', port=8080, debug=True, reloader=True)
+app.run(host='0.0.0.0', port=8080, debug=True, reloader=True)
