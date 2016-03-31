@@ -96,3 +96,19 @@ class EtcdDomainStore():
     def get(self, domname):
         return self.etcd.get(domname)
 
+
+class InMemoryDomainStore():
+    memory = {}
+
+    def list(self):
+        return self.memory.keys()
+
+    def add(self, domname, data):
+        return self.memory[domname] = data
+
+    def remove(self, domname):
+        del self.memory[domname]
+
+    def get(self, domname):
+        return self.memory[domname]
+
