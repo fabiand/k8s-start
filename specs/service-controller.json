@@ -1,0 +1,21 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "controller",
+    "labels": {
+      "app": "controller-service"
+    }
+  },
+  "spec": {
+    "selector": {
+      "app": "controller",
+    },
+    "ports": [
+      {
+        "name": "controller-rest",
+        "port": "8080"
+      }
+    ]
+  }
+}
