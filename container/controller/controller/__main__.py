@@ -42,7 +42,7 @@ def doms_show(name):
 def doms_status(name):
     return doms.connection_uri(name)
 
-@app.route('/v1/domains/<name>', method='DELETE' )
+@app.route('/v1/domains/<name>', method='DELETE')
 def doms_delete(name):
     return doms.delete(name)
 
