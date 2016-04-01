@@ -11,9 +11,34 @@ symlink_default_nic_to_well_known_name() {
   # macvatp does not work in container
 }
 
+# Give libvirt time to come up
 sleep 3
 
-curl -L -o dom.xml "$DOMAIN_HTTP_URL"
+# A small python script to
+# first assume etcd and try to parse the value
+# if this fails, then it returns the raw value
+# this is helfpul for raw http urls like a http server
+python3 -B - <<EOP
+import requests
+import json
+
+dstfn = "dom.xml"
+url = "$DOMAIN_HTTP_URL"
+
+print("Fetching URL %s" % url)
+value = requests.get(url).text
+
+try:
+    print("Assuming etcd source, trying to parse ...")
+    value = json.loads(requests.get(url).text)["node"]["value"]
+    print("json looks okay")
+except:
+    print("Failed to parse json, returning raw data")
+
+print("Writing to %s" % dstfn)
+with open(dstfn, "w") as dst:
+    dst.write(value)
+EOP
 
 virsh define dom.xml
 
