@@ -22,12 +22,23 @@
 # Author(s): Fabian Deutsch <fabiand@redhat.com>
 #
 
-from bottle import Bottle, request, response
+from bottle import Bottle, request, response, HTTPResponse
 from controller.lib import Domains
 
 
 doms = Domains()
 app = Bottle()
+
+
+@app.error(405)
+def method_not_allowed(res):
+    if request.method == 'OPTIONS':
+        new_res = HTTPResponse()
+        new_res.set_header('Access-Control-Allow-Origin', '*')
+        new_res.set_header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE')
+        return new_res
+    res.headers['Allow'] += ', OPTIONS'
+    return request.app.default_error_handler(res)
 
 
 @app.hook('after_request')
