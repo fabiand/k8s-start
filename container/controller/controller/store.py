@@ -100,7 +100,7 @@ class InMemoryDomainStore():
     memory = {}
 
     def list(self):
-        return self.memory.keys()
+        return list(self.memory.keys())
 
     def add(self, domname, data):
         self.memory[domname] = data
