@@ -19,20 +19,6 @@
             "containerPort": 8080,
             "name": "controller-rest"
           }
-        ],
-        "env": [
-          {
-            "name": "FOO",
-            "value": "BAR"
-          },
-          {
-            "name": "POD_IP",
-            "valueFrom": {
-              "fieldRef": {
-                "fieldPath": "status.podIP"
-              }
-            }
-          }
         ]
       },
       {
@@ -49,6 +35,12 @@
         "name": "etcd",
         "image": "gcr.io/google_containers/etcd:2.0.12",
         "imagePullPolicy": "Always",
+        "ports": [
+          {
+            "containerPort": 4001,
+            "name": "etcd-rest"
+          }
+        ],
 	      "command": [
           "/usr/local/bin/etcd",
           "--addr=127.0.0.1:4001",

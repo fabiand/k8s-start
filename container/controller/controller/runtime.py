@@ -110,17 +110,18 @@ spec:
 
     def list(self):
         matches = kubectl(["-l", "app=compute-rc",
-                          "get", "rc", "-ojson"],
+                           "get", "rc", "-ojson"],
                           "items[*].metadata.labels.domain")
         return [m.value for m in matches] if matches else []
 
     def create(self, domname):
         def create(spec):
-            env = {"DOMNAME": domname,
-                   "DOMAIN_HTTP_URL": "%s/%s" % (os.environ["POD_IP"],
-                                                 domname)
-                   }
-
+            env = {
+                "DOMNAME": domname,
+                "DOMAIN_HTTP_URL": "http://%s:%s/v2/keys/domains/%s" %
+                (os.environ["CONTROLLER_SERVICE_HOST"],
+                 os.environ["CONTROLLER_SERVICE_PORT_ETC_REST"],
+                    domname)}
             spec = spec.format(**env)
             print(spec)
             kubectl(["create", "-f", "-"], input=bytes(spec, encoding="utf8"))
