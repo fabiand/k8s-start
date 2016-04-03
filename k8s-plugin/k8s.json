@@ -1,0 +1,19 @@
+{
+
+    // Unique name of the plugin
+    "name": "k8s",
+
+    // URL of plugin host page that bootstraps plugin code
+    // This URL maps to $ENGINE_USR/ui-plugins/space-shooter-resources/plugin.html
+    "url": "plugin/k8s/plugin.html",
+
+    // Path to plugin resource files relative to descriptor
+    // This path maps to $ENGINE_USR/ui-plugins/space-shooter-resources
+    "resourcePath": "k8s-resources",
+
+    // Default configuration associated with the plugin
+    "config": {
+        "allowedOrigins": ["http://127.0.0.1:8080", "http://127.0.0.1:8081"]
+    }
+
+}
