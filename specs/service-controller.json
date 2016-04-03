@@ -16,6 +16,11 @@
         "name": "controller-rest",
         "port": 8080,
         "targetPort":"controller-rest"
+      },
+      {
+        "name": "etc-rest",
+        "port": 4001,
+        "targetPort":"etcd-rest"
       }
     ]
   }
