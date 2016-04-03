@@ -4,8 +4,8 @@ set -xe
 
 libvirtd --listen &
 
+DEFAULT_NIC=$(ip route show to 0/0 | cut -d" " -f 5)
 symlink_default_nic_to_well_known_name() {
-  local DEFAULT_NIC=$(ip route show to 0/0 | cut -d" " -f 5)
   ip link show meth0 || ip link add name meth0 link $DEFAULT_NIC type macvlan
   ip link set meth0 up
   # macvatp does not work in container
@@ -40,6 +40,13 @@ with open(dstfn, "w") as dst:
     dst.write(value)
 EOP
 
+# Create the domain
 virsh define dom.xml
+
+# IIRC macvlans don't work in containers, but let's try without failing
+virsh attach-interface generic direct $DEFAULT_NIC --model e1000 --current || :
+
+# Start the domain
+virsh start $(xmllint --xpath "domain/name/text()" dom.xml)
 
 wait
