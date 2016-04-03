@@ -120,7 +120,7 @@ spec:
                 "DOMNAME": domname,
                 "DOMAIN_HTTP_URL": "http://%s:%s/v2/keys/domains/%s" %
                 (os.environ["CONTROLLER_SERVICE_HOST"],
-                 os.environ["CONTROLLER_SERVICE_PORT_ETC_REST"],
+                 os.environ["CONTROLLER_SERVICE_PORT_ETCD_REST"],
                     domname)}
             spec = spec.format(**env)
             print(spec)
