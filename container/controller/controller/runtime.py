@@ -62,7 +62,6 @@ spec:
         app: compute
         domain: {DOMNAME}
     spec:
-      hostNetwork: True
       volumes:
       - name: host
         hostPath:
