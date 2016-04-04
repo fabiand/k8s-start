@@ -43,15 +43,13 @@ class Domains():
     def create(self, domname, domxml):
         xmlobj = ET.fromstring(domxml)
         assert domname == xmlobj.find("name").text
-        # FIXME Network handling
-        # Network is not important now
-        '''
-        assert len(xmlobj.findall("devices/interface")) == 1
-        assert len(xmlobj.findall("devices/interface/[@type='bridge']")) == 1
-        xmlobj.find("devices/interface/[@type='bridge']")\
-              .find("source")\
-              .set("bridge", "br0")
-        '''
+
+        # FIXME for now we only allow macvlan
+        # devices, which are type "direct" in libvirt
+        assert all(nic.get("type") == "direct" for nic in
+                   xmlobj.findall("devices/interface")), \
+          "If you attach NICs, then only of type 'direct'"
+
         domxml = ET.tostring(xmlobj, "utf-8").decode("utf-8")
         self.store.add(domname, domxml)
         self.runtime.create(domname)
