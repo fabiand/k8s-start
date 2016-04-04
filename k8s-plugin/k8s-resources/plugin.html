@@ -1,0 +1,56 @@
+<!doctype html>
+<!--
+k8s test plugin
+-->
+<html>
+
+<head>
+    <meta charset="utf-8">
+</head>
+
+<body>
+
+    <script type='text/javascript'>
+        // Get API object for 'space-shooter' plugin
+        // Note: using 'parent' due to plugin code being evaluated within an iframe context
+        var api = parent.pluginApi('k8s');
+
+        // Get runtime plugin configuration, i.e. custom configuration (if any)
+        // merged on top of default configuration (if any)
+        var config = api.configObject();
+
+        // Customize API options that affect specific features of plugin API
+        api.options({
+            // Configure source origin(s), i.e. protocol://domain:port
+            // from which HTML5 message events will be accepted
+            allowedMessageOrigins: config.allowedOrigins
+        });
+
+        var gameContentWindow = null; // Reference to game Window object
+        var subTabWindow = null; // Reference to 'Score' sub tab Window object
+
+        var subTabToken = 'k8s-tab';
+
+        // var subTabUrl = 'plugin/k8s/index.html';
+        var subTabUrl = 'http://localhost:8000/index.html';
+
+        var init = function() {
+            api.addMainTab('K8s Virtual Machines', subTabToken, subTabUrl);
+        };
+
+        // Register event handler functions for later invocation by UI plugin infrastructure
+        api.register({
+
+            UiInit: function() {
+                init();
+            },
+            MessageReceived: function(data, sourceWindow) {}
+        });
+
+
+        // Tell plugin infrastructure that we are good to go, expect UiInit callback
+        api.ready();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+
+<body>
+    <div class="row">
+        <div class="col-sm-1">
+            <button type="button" id="delete" class="btn btn-danger btm-md">Delete</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div id="available"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div id="running"></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-1">
+            <button type="button" id="start" class="btn btn-success btm-md">Start</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <pre id="libvirt" class="prettyprint" contentEditable="true"></pre>
+        </div>
+    </div>
+
+    <script>
+        url = "http://localhost:8080"
+        selected = null
+        $.get("domain.xml", function(response) {
+            $("#libvirt").text((new XMLSerializer()).serializeToString(response));
+        });
+        $("#start").click(function() {
+            xml = $("#libvirt").text()
+            xmlDoc = $.parseXML(xml)
+            $.ajax({
+                    method: "PUT",
+                    url: url + "/v1/domains/" + $(xmlDoc).find('name').text(),
+                    data: xml
+                })
+                .fail(function(msg) {
+                    alert("Fail: " + msg);
+                }).done(function(msg) {
+
+                    refresh()
+                });
+        });
+        $("#delete").click(function() {
+            name = $("tr.info").text();
+            if (name != "") {
+                $.ajax({
+                        method: "DELETE",
+                        url: url + "/v1/domains/" + name
+                    })
+                    .fail(function(msg) {
+                        alert("Fail: " + msg);
+                    })
+                    .done(function(msg) {
+                        refresh()
+                    });
+            }
+        });
+
+        $('#available').on('click', '.clickable-row', function(event) {
+            $(this).addClass('info').siblings().removeClass('info');
+        });
+
+        function refresh() {
+            name = $("tr.info").text();
+            $.getJSON(url + "/v1/domains/", function(data) {
+                $.each(data, function(key, val) {
+                    var items = [];
+                    items.push("<table class='table table-hover'><thread><tr><th>" + key + "</th></tr></thread><tbody>")
+                    $.each(val, function(i, v) {
+                        if (key == "available" && v == name) {
+                            items.push("<tr class='clickable-row info'><td>" + v + "</td></tr>");
+                        } else {
+                            items.push("<tr class='clickable-row'><td>" + v + "</td></tr>");
+
+                        }
+                    });
+                    items.push("</tbody></table>")
+                    $("#" + key).html(items.join(""))
+                });
+            });
+        }
+        refresh()
+        setInterval(refresh, 2000)
+    </script>
+</body>
+
+</html>
