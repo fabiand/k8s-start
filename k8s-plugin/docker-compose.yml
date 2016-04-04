@@ -1,0 +1,28 @@
+k8s-plugin-data:
+  build: .
+  volumes:
+    - /usr/share/ovirt-engine/ui-plugins/
+  command: ["true"]
+k8s-plugin:
+  build: .
+  ports:
+    - "8082:80"
+  links:
+    - engine
+  environment:
+    - ENGINE_HOST=engine
+engine:
+  image: rmohr/ovirt-engine
+  ports:
+    - "8080:8080"
+    - "8443:8443"
+  volumes_from:
+    - k8s-plugin-data
+  links:
+    - postgres
+postgres:
+  image: rmohr/ovirt-postgres:9.2.15
+  environment:
+    - POSTGRES_USER=engine
+    - POSTGRES_DB=engine
+    - POSTGRES_PASSWORD=engine
