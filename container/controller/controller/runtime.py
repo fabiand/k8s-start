@@ -63,6 +63,10 @@ spec:
         domain: {DOMNAME}
     spec:
       hostNetwork: True
+      volumes:
+      - name: host
+        hostPath:
+          path: /
       containers:
       - name: compute
         image: docker.io/fabiand/compute:latest
@@ -75,6 +79,9 @@ spec:
           name: vnc
         - containerPort: 16509
           name: libvirt
+        volumeMounts:
+        - name: host
+          mountPath: /host
         env:
         - name: LIBVIRT_DOMAIN
           value: {DOMNAME}
