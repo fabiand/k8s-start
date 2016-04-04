@@ -29,7 +29,7 @@ import concurrent.futures
 from .utils import jsonpath
 
 
-THREADS = 2
+THREADS = 1
 
 
 def kubectl(args, expr=None, **kwargs):
