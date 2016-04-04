@@ -44,7 +44,6 @@
     </div>
 
     <script>
-        url = "http://localhost:8080"
         selected = null
         $.get("domain.xml", function(response) {
             $("#libvirt").text((new XMLSerializer()).serializeToString(response));
@@ -54,7 +53,7 @@
             xmlDoc = $.parseXML(xml)
             $.ajax({
                     method: "PUT",
-                    url: url + "/v1/domains/" + $(xmlDoc).find('name').text(),
+                    url: "/v1/domains/" + $(xmlDoc).find('name').text(),
                     data: xml
                 })
                 .fail(function(msg) {
@@ -69,7 +68,7 @@
             if (name != "") {
                 $.ajax({
                         method: "DELETE",
-                        url: url + "/v1/domains/" + name
+                        url: "/v1/domains/" + name
                     })
                     .fail(function(msg) {
                         alert("Fail: " + msg);
@@ -86,7 +85,7 @@
 
         function refresh() {
             name = $("tr.info").text();
-            $.getJSON(url + "/v1/domains/", function(data) {
+            $.getJSON("/v1/domains/", function(data) {
                 $.each(data, function(key, val) {
                     var items = [];
                     items.push("<table class='table table-hover'><thread><tr><th>" + key + "</th></tr></thread><tbody>")
