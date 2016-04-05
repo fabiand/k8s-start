@@ -18,7 +18,8 @@
           {
             "containerPort": 8084,
             "name": "controller-rest"
-          },
+          }
+        ],
         "volumeMounts": [
           {
             "name": "host",
