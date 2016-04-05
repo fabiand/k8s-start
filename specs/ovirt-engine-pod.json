@@ -54,12 +54,8 @@
         ],
         "volumeMounts": [
           {
-            "name": "certs",
-            "mountPath": "/etc/pki/ovirt-engine"
-          },
-          {
             "name": "backups",
-            "mountPath": "/var/lib/ovirt-engine/backups"
+            "mountPath": "/var/lib/ovirt-engine/backups/"
           },
           {
             "name": "plugins",

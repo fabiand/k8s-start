@@ -18,16 +18,19 @@
       {
         "name": "engine-tls",
         "protocol": "TCP",
-        "port": 443,
+        "port": 8444,
         "targetPort": "engine-tls"
       },
       {
         "name": "frontend",
         "protocol": "TCP",
-        "port": 8444,
+        "port": 443,
         "targetPort": "frontend"
       }
 
+    ],
+    "externalIPs": [
+        "YOUR_IP_HERE"
     ]
   }
 }
