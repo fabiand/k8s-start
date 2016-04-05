@@ -44,6 +44,24 @@ def kubectl(args, expr=None, **kwargs):
         return jsonpath(expr, objs)
     return data
 
+# TODO: Make next functions rest apis
+
+
+def get_rc_pod_names(rc):
+    pods = kubectl(
+        ["describe", "pods", rc])
+    names = [name.split(":")[1].strip()
+             for name in pods.splitlines() if name.startswith("Name:")]
+    return names
+
+
+def get_pod_node(pod):
+    pods = kubectl(
+        ["describe", "pod", pod])
+    node = [name.split(":")[1].strip().split("/")[0]
+            for name in pods.splitlines() if name.startswith("Node:")]
+    return node[0]
+
 
 class KubeDomainRuntime():
     VM_RC_SPEC = """
@@ -107,11 +125,14 @@ spec:
   selector:
     app: compute
     domain: {DOMNAME}
+  type: NodePort
   ports:
   - name: libvirt
     port: 16509
+    nodePort: 30001
   - name: vnc
     port: 5900
+    nodePort: 30900
     """
 
     def list(self):
@@ -145,15 +166,11 @@ spec:
                                       "-l", "domain=%s" % domname])
 
     def connection_uri(self, domname):
-        data = kubectl(["get", "service", "-ojson",
-                        "-l", "domain=%s" % domname])
-        # FIXME directly fetch for instance
-        parsed = json.loads(data)
-        clusterip = jsonpath("items[0].spec.clusterIP",
-                             parsed)[0].value
-        port = jsonpath("items[0].spec.ports[?(name='libvirt')].port",
-                        parsed)[0].value
-        return "qemu+tcp://%s:%s/system" % (clusterip, port)
+        pods = get_rc_pod_names("compute-rc-%s" % (domname))
+        assert len(pods) > 0
+        node = get_pod_node(pods[0])
+        # the port is hardcoded for now
+        return "qemu+tcp://%s:30001/system" % (node)
 
 
 class FakeRuntime():
