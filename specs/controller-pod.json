@@ -18,6 +18,11 @@
           {
             "containerPort": 8084,
             "name": "controller-rest"
+          },
+        "volumeMounts": [
+          {
+            "name": "host",
+            "mountPath": "/host"
           }
         ]
       },
@@ -51,10 +56,6 @@
           {
             "name": "etcddata",
             "mountPath": "/var/etcd/data"
-          },
-          {
-            "name": "host",
-            "mountPath": "/host"
           }
         ]
       }
