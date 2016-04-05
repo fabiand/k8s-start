@@ -3,7 +3,7 @@ FROM nginx:alpine
 ENV CONTROLLER_PORT_8080_TCP_ADDR localhost
 ENV CONTROLLER_PORT_8080_TCP_PORT 8080
 ENV ENGINE_HOST localhost
-ENV ENGINE_PORT 8080
+ENV ENGINE_PORT 8443
 
 COPY nginx.conf    /etc/nginx/nginx.conf
 COPY k8s.json      /usr/share/ovirt-engine/ui-plugins/
