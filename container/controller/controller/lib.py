@@ -47,10 +47,7 @@ class Domains():
         # FIXME for now we only allow macvlan
         # devices, which are type "direct" in libvirt
         nics = xmlobj.findall("devices/interface")
-        if nics:
-            assert all(nic.get("type") == "direct" for nic in
-                       nics), \
-                "If you attach NICs, then only of type 'direct'"
+        assert (len(nics) == 0), "You may not define NICs"
 
         domxml = ET.tostring(xmlobj, "utf-8").decode("utf-8")
         self.store.add(domname, domxml)
