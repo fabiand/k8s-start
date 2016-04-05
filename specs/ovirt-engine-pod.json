@@ -95,6 +95,11 @@
             "name": "OVIRT_PKI_ORGANIZATION",
             "value": "oVirt"
           }
+        ],
+        "command": [
+          "/bin/bash",
+          "-c",
+          "rm -rf /etc/yum.repos.d/* && bash /entrypoint.sh"
         ]
       },
       {
