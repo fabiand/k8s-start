@@ -12,4 +12,4 @@ EXPOSE 16509
 EXPOSE 5900
 EXPOSE 1923
 
-CMD ["/start.sh"]
+CMD ["/start-compute.sh"]
