@@ -7,10 +7,12 @@ k8s-plugin:
   build: .
   ports:
     - "8082:80"
+    - "8444:443"
   links:
     - engine
   environment:
     - ENGINE_HOST=engine
+    - ENGINE_PORT=8443
 engine:
   image: rmohr/ovirt-engine
   ports:
@@ -20,6 +22,8 @@ engine:
     - k8s-plugin-data
   links:
     - postgres
+  environment:
+    - OVIRT_FQDN localhost
 postgres:
   image: rmohr/ovirt-postgres:9.2.15
   environment:
