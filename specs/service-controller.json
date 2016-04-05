@@ -14,7 +14,7 @@
     "ports": [
       {
         "name": "controller-rest",
-        "port": 56789,
+        "port": 8084,
         "targetPort":"controller-rest"
       },
       {

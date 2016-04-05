@@ -30,28 +30,28 @@ Retrieved using `$ grep route container/controller/controller/__main__.py`
 ## @app.route('/v1/domains/')
 List all available and running domains
 
-    $ curl "127.0.0.1:8080/v1/domains/"
+    $ curl "127.0.0.1:8084/v1/domains/"
     {"available": ["generic-pxe"], "running": []}
 
 ## @app.route('/v1/domains/<name>', method='GET')
 Get the domain xml specification
 
-    $ curl "127.0.0.1:8080/v1/domains/generic-pxe"
+    $ curl "127.0.0.1:8084/v1/domains/generic-pxe"
 
 ## @app.route('/v1/domains/<name>/connection/uri', method='GET')
 Get the libvirt connection URI (tcp+sasl, without authentication) to the
 VM inside the pod.
 Each pod will have it's own virtual (cluster) IP.
 
-    $ curl "127.0.0.1:8080/v1/domains/generic-pxe/connection/uri"
+    $ curl "127.0.0.1:8084/v1/domains/generic-pxe/connection/uri"
     qemu+tcp://10.0.0.42:16509/system
 
 ## @app.route('/v1/domains/<name>', method='DELETE')
 Delete the domain
 
-    $ curl "127.0.0.1:8080/v1/domains/generic-pxe" -X DELETE
+    $ curl "127.0.0.1:8084/v1/domains/generic-pxe" -X DELETE
 
 ## @app.route('/v1/domains/<name>', method='PUT')
 Create the domain, submit the domain xml specification
 
-    $ curl "127.0.0.1:8080/v1/domains/generic-pxe" -X PUT --data @dom.xml
+    $ curl "127.0.0.1:8084/v1/domains/generic-pxe" -X PUT --data @dom.xml

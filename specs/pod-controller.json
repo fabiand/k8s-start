@@ -16,7 +16,7 @@
         "imagePullPolicy": "Always",
         "ports": [
           {
-            "containerPort": 56789,
+            "containerPort": 8084,
             "name": "controller-rest"
           }
         ]
