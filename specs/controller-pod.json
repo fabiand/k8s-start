@@ -51,6 +51,10 @@
           {
             "name": "etcddata",
             "mountPath": "/var/etcd/data"
+          },
+          {
+            "name": "host",
+            "mountPath": "/host"
           }
         ]
       }
@@ -59,6 +63,13 @@
       {
         "name": "etcddata",
         "emptyDir": {}
+      },
+      {
+        "name": "host",
+        "hostPath":
+          {
+            "path": "/"
+          }
       }
     ]
   }
