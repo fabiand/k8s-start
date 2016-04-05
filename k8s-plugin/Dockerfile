@@ -8,6 +8,8 @@ ENV ENGINE_PORT 8080
 COPY nginx.conf    /etc/nginx/nginx.conf
 COPY k8s.json      /usr/share/ovirt-engine/ui-plugins/
 COPY k8s/*         /usr/share/ovirt-engine/ui-plugins/k8s/
+COPY nginx.crt     /etc/nginx/ssl/
+COPY nginx.key    /etc/nginx/ssl/
 
 COPY run.sh /
 
