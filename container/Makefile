@@ -2,7 +2,7 @@
 
 .PHONY: hl ll ngn
 
-hl: compute controller ll
+hl: compute controller ll k8s-plugin
 
 ll: libvirt
 
