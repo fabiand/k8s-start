@@ -11,8 +11,9 @@ BR=bridge0
   ip link set $DEFAULT_NIC up
   ip link show meth0 || ip link add name meth0 link $DEFAULT_NIC type macvlan
   ip link set meth0 up || :
-  ip link add $BR type bridge
-  ip link set meth0 master $BR
+  ip link show $BR || ip link add $BR type bridge
+  ip link set meth0 master $BR || :
+  ip link set $BR up || :
 #}
 
 # Give libvirt time to come up
