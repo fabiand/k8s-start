@@ -1,0 +1,34 @@
+@startuml
+title Create VM Flow
+actor User
+boundary Browser
+entity Engine
+control Controller
+database etcd
+control Kube
+control DOM_RC
+entity DOM_POD
+entity DOM_SVC
+control DOM_LIBVIRT
+
+User -> Browser
+Browser -> Engine
+group Engine-Level
+Engine -> Controller
+Controller -> etcd : Store domain specification
+Controller -> Kube : Create domain RC
+end
+
+group Kube-Level
+Kube -> DOM_RC : Create DOM_POD
+DOM_RC -> DOM_POD : RC schedules a new POD
+Kube -> DOM_SVC : Create DOM_SVC
+end
+
+group Pod-Level
+DOM_POD -> etcd : Request domain specification
+etcd --> DOM_POD : Domain specification response
+DOM_POD -> DOM_LIBVIRT : Define VM in libvirt
+DOM_POD -> DOM_LIBVIRT : Start VM in libvirt
+end
+@enduml
