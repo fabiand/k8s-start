@@ -54,7 +54,7 @@ def get_rc_pod_names(rc):
 def get_pod_node(pod):
     pods = kubectl(
         ["describe", "pod", pod])
-    node = [name.split(":")[1].strip().split("/")[0]
+    node = [name.split(":")[1].strip().split("/")[1]
             for name in pods.splitlines() if name.startswith("Node:")]
     return node[0]
 
