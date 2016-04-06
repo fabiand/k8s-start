@@ -90,6 +90,7 @@
         });
 
         $('#running').on('click', '.clickable-row', function(event) {
+            $("#spice").attr('href', "");
             $(this).addClass('info').siblings().removeClass('info');
                 $.ajax({
                         method: "GET",
