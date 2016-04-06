@@ -180,4 +180,4 @@ class FakeRuntime():
         self.running.remove(domname)
 
     def connection_uri(self, domname):
-        return "none://%s/system" % domname
+        return "qemu+tcp://%s/system" % domname
