@@ -25,11 +25,7 @@
 import subprocess
 import json
 import os
-import concurrent.futures
 from .utils import jsonpath
-
-
-THREADS = 1
 
 
 def kubectl(args, expr=None, **kwargs):
@@ -153,17 +149,15 @@ spec:
             print(spec)
             kubectl(["create", "-f", "-"], input=bytes(spec, encoding="utf8"))
 
-        with concurrent.futures.ThreadPoolExecutor(THREADS) as executor:
-            executor.submit(create, self.VM_RC_SPEC)
-            executor.submit(create, self.VM_SVC_SPEC)
+        create(self.VM_RC_SPEC)
+        create(self.VM_SVC_SPEC)
 
     def delete(self, domname):
-        with concurrent.futures.ThreadPoolExecutor(THREADS) as executor:
-            executor.submit(kubectl, ["delete", "rc",
-                                      "-l", "domain=%s" % domname])
+        kubectl(["delete", "rc",
+                 "-l", "domain=%s" % domname])
 
-            executor.submit(kubectl, ["delete", "svc",
-                                      "-l", "domain=%s" % domname])
+        kubectl(["delete", "svc",
+                 "-l", "domain=%s" % domname])
 
     def connection_uri(self, domname):
         pods = get_rc_pod_names("compute-rc-%s" % (domname))
