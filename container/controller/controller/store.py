@@ -84,16 +84,19 @@ class EtcdDomainStore():
         self.etcd = Etcd(url + key_prefix)
 
     def list(self):
-        return self.etcd.list()
+        return [os.path.basename(k) for k in self.etcd.list()]
 
     def add(self, domname, data):
+        assert "/" not in domname
         return self.etcd.set(domname, data)
 
     def remove(self, domname):
+        assert "/" not in domname
         return self.etcd.delete(domname)
 
     def get(self, domname):
-        return self.etcd.get(domname)
+        assert "/" not in domname
+        return os.path.basename(self.etcd.get(domname))
 
 
 class InMemoryDomainStore():
