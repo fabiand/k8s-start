@@ -164,7 +164,7 @@ spec:
         assert len(pods) > 0
         node = get_pod_node(pods[0])
         # the port is hardcoded for now
-        return "qemu+tcp://%s:30001/system" % (node)
+        return "vnc://%s:30900/" % (node)
 
 
 class FakeRuntime():
