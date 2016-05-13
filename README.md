@@ -19,7 +19,7 @@ Specs to create k8s objects
 
 # START
 
-- Setup k8s on the local host.
+- Setup k8s on the local host: `setenforce 0 ; bsah get-started`
 - Go into the container/controller dir and run the controller
 - Use curl to use the controller REST API
 
