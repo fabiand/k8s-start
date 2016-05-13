@@ -4,7 +4,7 @@
 
 hl: compute/ controller/ ll k8s-plugin/
 
-ll: libvirt/
+ll: libvirt/ openvswitch/
 
 ngn: ngn-builder/
 
