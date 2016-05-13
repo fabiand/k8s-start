@@ -9,6 +9,6 @@ RUN dnf install -y openvswitch
 
 ADD start-network.sh /
 
-LABEL start=--volumes /run/openvswitch:/run/openvswitch
+LABEL start="--volumes /run/openvswitch:/run/openvswitch"
 
 CMD ["/start-network.sh"]

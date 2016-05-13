@@ -9,6 +9,6 @@ RUN systemctl enable openvswitch.service
 
 ADD start-ovs.sh /
 
-LABEL start=--volume /var/run/openvswitch:/var/run/openvswitch
+LABEL start="--volume /var/run/openvswitch:/var/run/openvswitch"
 
 CMD ["/start-ovs.sh"]
