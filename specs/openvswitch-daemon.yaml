@@ -1,0 +1,17 @@
+apiVersion: v1.2
+kind: DaemonSet
+metadata:
+  labels:
+    app: openvswitch
+  name: openvswitch
+spec:
+  template:
+    metadata:
+      labels:
+        app: openvswitch
+    spec:
+      nodeSelector: 
+        app: openvswitch
+      containers:
+        name: openvswitch
+        image: dockerhub.io/fabiand/openvswitch
