@@ -7,7 +7,7 @@ RUN dnf install -y \
   libvirt-daemon-kvm \
   libvirt-daemon-qemu \
   libvirt-daemon-driver-interface \
-  libvirt-daemon-drive-network \
+  libvirt-daemon-driver-network \
   libvirt-daemon-driver-nodedev \
   libvirt-client \
   augeas
