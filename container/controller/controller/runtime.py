@@ -80,6 +80,9 @@ spec:
       - name: host
         hostPath:
           path: /
+      - name: nfs
+        persistentVolumeClaim:
+          claimName: nfs
       containers:
       - name: compute
         image: docker.io/fabiand/compute:latest
@@ -102,11 +105,14 @@ spec:
           value: {DOMAIN_HTTP_URL}
         resources:
           requests:
-            memory: "128Mi"
+            memory: "1024Mi"
             cpu: "1000m"
           limits:
-            memory: "1024Mi"
+            memory: "2048Mi"
             cpu: "4000m"
+        volumeMounts:
+          - name: nfs
+            mountPath: "/mnt"
     """
 
     VM_SVC_SPEC = """
