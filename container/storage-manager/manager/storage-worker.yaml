@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  generateName: "storage-worker-"
+spec:
+  restartPolicy: "Always"
+  volumes:
+    - name: nfs
+      persistentVolumeClaim:
+        claimName: nfs
+  containers:
+    -
+      image: "docker.io/tlitovsk/storage-worker:latest"
+      imagePullPolicy: "Always"
+      name: "storage-worker"
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "200Mi"
+      volumeMounts:
+        - name: nfs
+          mountPath: "/mnt"

@@ -1,0 +1,19 @@
+FROM fedora:23
+MAINTAINER "Tolik Litovsky" <tlitovsk@redhat.com>
+ENV container docker
+
+RUN dnf -y install wget qemu-img python python-pip
+RUN dnf -y update && dnf clean all;
+
+RUN pip install --upgrade pip
+RUN pip install bottle
+
+RUN mkdir -p /mnt
+
+RUN mkdir -p /root/service
+COPY worker/* /root/service/
+
+EXPOSE 8084
+
+CMD python /root/service/__main__.py
+# docker build --rm -t tlitovsk/storage-worker:latest
