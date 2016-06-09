@@ -1,22 +1,32 @@
 apiVersion: v1
-kind: Pod
+kind: ReplicationController
 metadata:
-  generateName: "storage-worker-"
+  name: volume-rc-nfs
+  labels:
+    app: volume-rc
 spec:
-  restartPolicy: "Always"
-  volumes:
-    - name: nfs
-      persistentVolumeClaim:
-        claimName: nfs
-  containers:
-    -
-      image: "docker.io/tlitovsk/storage-worker:latest"
-      imagePullPolicy: "Always"
-      name: "storage-worker"
-      resources:
-        requests:
-          cpu: "100m"
-          memory: "200Mi"
-      volumeMounts:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: volume-worker
+        volume: nfs
+    spec:
+      volumes:
         - name: nfs
-          mountPath: "/mnt"
+          persistentVolumeClaim:
+            claimName: nfs
+      containers:
+        - image: "docker.io/tlitovsk/storage-worker:latest"
+          imagePullPolicy: "Always"
+          name: "storage-worker"
+          ports:
+            - containerPort: 8084
+              name: volume-rest
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "200Mi"
+          volumeMounts:
+            - name: nfs
+              mountPath: "/mnt"
