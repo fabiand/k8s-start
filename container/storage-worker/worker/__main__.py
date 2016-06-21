@@ -3,6 +3,9 @@ import os
 import subprocess
 import glob
 
+#TODO : seperate the code into different class
+
+
 app = Bottle()
 volume_mount = "/mnt"
 
@@ -24,12 +27,16 @@ def enable_cors():
 
 @app.route('/v1/version')
 def version():
-    return {"version" : "v1.0"}
+    return {"version" : "v1.0" , "service" : "storage-worker" }
 
 
-@app.route('/v1/disk/<name>', method='POST')
+@app.route('/v1/status')
+def version():
+    return {"status": "ready"}
+
+
+@app.route('/v1/disks/<name>', method='POST')
 def create(name):
-    assert name.isalpha()
     new_disk = "{}/{}.qcow2".format(volume_mount,name)
 
     if os.path.exists(new_disk):

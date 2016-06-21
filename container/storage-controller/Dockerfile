@@ -1,0 +1,17 @@
+FROM fedora:23
+MAINTAINER "Tolik Litovsky" <tlitovsk@redhat.com>
+ENV container docker
+
+RUN dnf -y install wget qemu-img python3 python3-pip kubernetes-client
+RUN dnf -y update && dnf clean all;
+
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install bottle jinja2
+
+COPY manager /root/
+COPY run.sh /root/
+
+EXPOSE 8084
+
+CMD /root/run.sh
+# docker build --rm -t tlitovsk/storage-manager:latest
