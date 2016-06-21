@@ -7,7 +7,11 @@ from urllib import request
 from time import sleep
 
 timeout = 120
-jinja_env = Environment(loader=FileSystemLoader('templates'))
+
+abspath = os.path.abspath(__file__)
+file_dir = os.path.dirname(abspath)
+print(file_dir)
+jinja_env = Environment(loader=FileSystemLoader('{}/templates'.format(file_dir)))
 
 
 def kubectl(args, **kwargs):

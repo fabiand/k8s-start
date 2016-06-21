@@ -8,10 +8,9 @@ RUN dnf -y update && dnf clean all;
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install bottle jinja2
 
-COPY manager /root/
-COPY run.sh /root/
-
 EXPOSE 8084
 
-CMD /root/run.sh
-# docker build --rm -t tlitovsk/storage-manager:latest
+RUN mkdir /root/manager
+COPY manager /root/manager
+CMD python3 /root/manager
+# docker build --rm -t tlitovsk/storage-controller:latest
