@@ -1,17 +1,21 @@
+import json
 import os
 import subprocess
-import json
-from jinja2 import Environment, FileSystemLoader
 import urllib
-from urllib import request
+
 from time import sleep
+from urllib import request
+
+from jinja2 import Environment
+from jinja2 import FileSystemLoader
 
 timeout = 120
 
 abspath = os.path.abspath(__file__)
 file_dir = os.path.dirname(abspath)
 print(file_dir)
-jinja_env = Environment(loader=FileSystemLoader('{}/templates'.format(file_dir)))
+jinja_env = Environment(
+    loader=FileSystemLoader('{}/templates'.format(file_dir)))
 
 
 def kubectl(args, **kwargs):
@@ -20,7 +24,7 @@ def kubectl(args, **kwargs):
     print(argv)
     try:
         data = subprocess.check_output(argv, **kwargs)
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         return None
     data = data.decode("utf-8")
     # print(data)
@@ -51,7 +55,7 @@ class VolumeWorker():
         ''' Test the connection to  the service
         '''
         try:
-            url = "http://{}.default:8084/v1/version".format(self.service_name)
+            url = "http://{}.default:8084/v1/status".format(self.service_name)
             response = request.urlopen(url)
             print(response.read())
             return True
@@ -67,7 +71,9 @@ class VolumeWorker():
             worker_template = jinja_env.get_template(template)
             worker_yaml = worker_template.render(volume_name=self.volume_name)
             print(worker_yaml)
-            kubectl(["create", "-f", "-"], input=bytes(worker_yaml, encoding="utf8"))
+            kubectl(
+                ["create", "-f", "-"],
+                input=bytes(worker_yaml, encoding="utf8"))
 
         create_template('storage-worker.yaml.in')
         create_template('storage-worker-service.yaml.in')
@@ -83,27 +89,30 @@ class VolumeWorker():
             test_timeout = test_timeout - 1
             sleep(1)
 
-        if test_timeout is 0 :
+        if test_timeout is 0:
             raise RuntimeError('can create storage manager')
 
-    def add_disk(self, disk):
-        data = {}
-        data = bytes(urllib.parse.urlencode(data).encode())
-        try :
+    def add_disk(self, disk, size):
+        params = json.dumps({"size": size})
+        try:
             url = "http://{}.default:8084/v1/disks/{}".format(
                 self.service_name, disk)
-            response = request.urlopen(url, data)
+            req = urllib.request.Request(
+                url=url,
+                data=params.encode('utf-8'),
+                headers={'Content-Type': 'application/json'})
+            response = request.urlopen(req)
             retVal = response.read()
         except urllib.error.HTTPError as err:
-            retVal = {"result":"failed" , "error" : "{}".format(err)  }
+            retVal = {"result": "failed", "error": "{}".format(err)}
         return retVal
 
     def list_disks(self):
-        url = "http://{}.default:8084/v1/disks".format(self.service_name)
+        url = "http://{}.default:8084/v1/disks/".format(self.service_name)
         try:
             response = request.urlopen(url)
             retVal = response.read()
         except HTTPError as err:
-            retVal = {"result":"failed" , "error" : "{}".format(err)  }
+            retVal = {"result": "failed", "error": "{}".format(err)}
         print(retVal)
         return retVal

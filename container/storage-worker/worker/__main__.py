@@ -1,20 +1,16 @@
-from bottle import Bottle, request, response
-import os
-import subprocess
-import glob
-
-#TODO : seperate the code into different class
-
+from bottle import Bottle, request, response, HTTPResponse
+import qcow_manager
 
 app = Bottle()
-volume_mount = "/mnt"
+
 
 @app.error(405)
 def method_not_allowed(res):
     if request.method == 'OPTIONS':
         new_res = HTTPResponse()
         new_res.set_header('Access-Control-Allow-Origin', '*')
-        new_res.set_header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE')
+        new_res.set_header(
+            'Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE')
         return new_res
     res.headers['Allow'] += ', OPTIONS'
     return request.app.default_error_handler(res)
@@ -27,34 +23,25 @@ def enable_cors():
 
 @app.route('/v1/version')
 def version():
-    return {"version" : "v1.0" , "service" : "storage-worker" }
+    return {"version": "v1.0", "service": "storage-worker"}
 
 
 @app.route('/v1/status')
-def version():
+def status():
     return {"status": "ready"}
 
 
 @app.route('/v1/disks/<name>', method='POST')
 def create(name):
-    new_disk = "{}/{}.qcow2".format(volume_mount,name)
+    size = request.json.get('size')
+    print(size)
+    if int(size) is 0:
+        return {"result": "fail", "message": "size is not number"}
+    return qcow_manager.create_disk(name, size)
 
-    if os.path.exists(new_disk):
-        return {"result":"fail" , "message":"disk exist"}
 
-    args = ["qemu-img","create", "-f","qcow2",new_disk,"20G"]
-    try:
-        subprocess.check_output(args)
-
-    except subprocess.CalledProcessError as e:
-        return {"result":"failed" , "message": e.output , "error-code": e.returncode }
-
-    return {"result":"success"}
-
-@app.route('/v1/disks')
+@app.route('/v1/disks/')
 def list():
-    result = glob.glob("{}/*.qcow2".format(volume_mount))
-    filenames = [ os.path.basename(file) for file in result ];
-    return {"result": filenames }
+    return {"result": qcow_manager.list_disk()}
 
 app.run(host='0.0.0.0', port=8084, debug=True, reloader=True)
