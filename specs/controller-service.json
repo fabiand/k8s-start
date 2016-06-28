@@ -1,28 +1,30 @@
 {
-  "kind": "Service",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "controller",
-    "labels": {
-      "app": "controller-service"
-    }
-  },
-  "spec": {
-    "selector": {
-      "app": "controller"
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": {
+        "labels": {
+            "app": "controller-service"
+        },
+        "name": "controller"
     },
-    "ports": [
-      {
-        "name": "controller-rest",
-        "port": 8084,
-        "targetPort":"controller-rest"
-      },
-      {
-        "name": "etcd-rest",
-        "port": 4001,
-        "targetPort":"etcd-rest"
-      }
-    ]
-  }
-
+    "spec": {
+        "externalIPs": [
+            "10.245.1.4"
+        ],
+        "ports": [
+            {
+                "name": "controller-rest",
+                "port": 8084,
+                "targetPort": "controller-rest"
+            },
+            {
+                "name": "etcd-rest",
+                "port": 4001,
+                "targetPort": "etcd-rest"
+            }
+        ],
+        "selector": {
+            "app": "controller"
+        }
+    }
 }

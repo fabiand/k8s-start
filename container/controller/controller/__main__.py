@@ -46,6 +46,11 @@ def enable_cors():
     response.headers['Access-Control-Allow-Origin'] = '*'
 
 
+@app.route('/v1/status')
+def status():
+    return {"status": "ready"}
+
+
 @app.route('/v1/domains/')
 def doms_list():
     return {"available": doms.list_available(),

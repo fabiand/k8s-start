@@ -10,3 +10,7 @@ ADD start-controller.sh /
 EXPOSE 8084
 
 CMD /start-controller.sh
+
+RUN dnf install python-ipdb ltrace gdb coreutils procps-ng -y
+
+CMD /start-controller.sh & sleep infinity
