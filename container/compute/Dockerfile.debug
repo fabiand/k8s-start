@@ -17,3 +17,7 @@ EXPOSE 5900
 EXPOSE 1923
 
 CMD /start-compute.sh
+
+RUN dnf install python-ipdb ltrace gdb coreutils procps-ng -y
+
+CMD /start-compute.sh & sleep infinity 

@@ -1,0 +1,17 @@
+{
+    "node": {
+        "value": {
+            "cpus": 4,
+            "disks": [
+                {
+                    "slot": 15,
+                    "storage_device": "disk",
+                    "storage_path": "/home/tlitovsk/workspace/kuber/ovirt-pod/container/compute/compute/test.qcow2",
+                    "storage_type": "qcow2"
+                }
+            ],
+            "memory_size_kb": 1048576,
+            "name": "nana"
+        }
+    }
+}
