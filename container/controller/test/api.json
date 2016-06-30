@@ -1,0 +1,19 @@
+{
+    "cpus": 4,
+    "disks": [
+        {
+            "slot": 15,
+            "storage_device": "disk",
+            "storage_path": "/mnt/Fedora-Cloud-Base-23-20151030.x86_64.qcow2",
+            "storage_type": "qcow2"
+        }
+    ],
+    "memory_size_kb": 1048576,
+    "mounts": [
+        {
+            "claim_name": "nfs",
+            "mount_point": "/mnt"
+        }
+    ],
+    "name": "nana"
+}

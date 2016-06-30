@@ -74,8 +74,8 @@ def doms_delete(name):
 
 @app.route('/v1/domains/<name>', method='PUT')
 def doms_create(name):
-    domxml = request.body.read().decode("utf8")
-    return doms.create(name, domxml)
+    dom_spec = request.body.read().decode("utf8")
+    return doms.create(name, dom_spec)
 
 
 app.run(host='0.0.0.0', port=8084, debug=True, reloader=True)

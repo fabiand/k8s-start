@@ -76,10 +76,12 @@ class KubeDomainRuntime():
                           "items[*].metadata.labels.domain")
         return [m.value for m in matches] if matches else []
 
-    def create(self, domname):
+    def create(self, domname, mount_volumes):
         def create(template_name):
             template = jinja_env.get_template(template_name)
-            yaml = template.render(name=domname)
+            print("MountVolumes")
+            print(mount_volumes)
+            yaml = template.render(name=domname, mounts=mount_volumes)
             print(yaml)
             kubectl(["create", "-f", "-"], input=bytes(yaml, encoding="utf8"))
 

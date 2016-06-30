@@ -41,7 +41,7 @@ def download_vm_defenition():
     try:
         print("Assuming etcd source, trying to parse ...")
         value = json.loads(requests.get(url).text)["node"]["value"]
-        print("json looks okay")
+        print("node value looks okay")
     except:
         print("Failed to parse json, returning raw data")
 
@@ -50,7 +50,7 @@ def download_vm_defenition():
 
 #TODO find how to make it thread safe
 desc = download_vm_defenition()
-xml = vm.render_dom(desc)
+xml = vm.render_dom(json.loads(desc))
 machine = vm.LibvirtVm(xml)
 
 app = Bottle()

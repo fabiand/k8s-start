@@ -17,12 +17,14 @@ spec:
       - name: host
         hostPath:
           path: /
-      - name: nfs
+      {% for mount in mounts -%}
+      - name: {{mount.claim_name}}
         persistentVolumeClaim:
-          claimName: nfs
+          claimName: {{mount.claim_name}}
+      {% endfor -%}
       containers:
       - name: compute
-        image: docker.io/fabiand/compute:latest
+        image: docker.io/tlitovsk/compute:latest
         securityContext:
           privileged: true
         ports:
@@ -39,7 +41,7 @@ spec:
         - name: LIBVIRT_DOMAIN
           value: {{name}}
         - name: DOMAIN_HTTP_URL
-          value: http://storage-controller.default:8084/v1/status/v2/keys/domains/{{name}}
+          value: http://controller.default:4001/v2/keys/domains/{{name}}
         resources:
           requests:
             memory: "1024Mi"
@@ -48,5 +50,7 @@ spec:
             memory: "2048Mi"
             cpu: "4000m"
         volumeMounts:
-          - name: nfs
-            mountPath: "/mnt"
+        {% for mount in mounts -%}
+          - name: {{mount.claim_name}}
+          mountPath: "{{mount.mount_point}}"
+        {% endfor -%}

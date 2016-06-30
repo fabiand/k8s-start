@@ -22,7 +22,7 @@
 # Author(s): Fabian Deutsch <fabiand@redhat.com>
 #
 
-import xml.etree.ElementTree as ET
+import json
 
 from .runtime import KubeDomainRuntime
 from .store import EtcdDomainStore
@@ -40,18 +40,11 @@ class Domains():
     def list_running(self):
         return self.runtime.list()
 
-    def create(self, domname, domxml):
-        xmlobj = ET.fromstring(domxml)
-        assert domname == xmlobj.find("name").text
-
-        # FIXME for now we only allow macvlan
-        # devices, which are type "direct" in libvirt
-        #nics = xmlobj.findall("devices/interface")
-        #assert (len(nics) == 0), "You may not define NICs"
-
-        domxml = ET.tostring(xmlobj, "utf-8").decode("utf-8")
-        self.store.add(domname, domxml)
-        self.runtime.create(domname)
+    def create(self, domname, dom_spec):
+        dom_spec = json.loads(dom_spec)
+        assert domname == dom_spec.get("name")
+        self.store.add(domname, json.dumps(dom_spec))
+        self.runtime.create(domname, dom_spec.get("mounts"))
 
     def delete(self, domname):
         self.store.remove(domname)
