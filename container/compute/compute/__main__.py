@@ -48,11 +48,6 @@ def download_vm_defenition():
     print(value)
     return value
 
-#TODO find how to make it thread safe
-desc = download_vm_defenition()
-xml = vm.render_dom(json.loads(desc))
-machine = vm.LibvirtVm(xml)
-
 app = Bottle()
 
 
@@ -79,6 +74,7 @@ def status():
 
 @app.route('/v1/vm/status')
 def doms_list():
+    machine = vm.LibvirtVm()
     if machine is not None:
         return {"status": machine.state()}
     return {"status": "missing"}
@@ -86,7 +82,10 @@ def doms_list():
 
 @app.route('/v1/vm/stop', method='DELETE')
 def doms_show():
-    return {"status": machine.stop()}
+    machine = vm.LibvirtVm()
+    if machine is not None:
+        return {"status": machine.stop()}
+    return {"status": "failed"}
 
 
 #TODO : return some URI for console
@@ -94,4 +93,9 @@ def doms_show():
 def doms_status(name):
     return {"status": "todo"}
 
+
+#TODO find how to make it thread safe
+desc = download_vm_defenition()
+xml = vm.render_dom(json.loads(desc))
+vm.LibvirtVm(xml)
 app.run(host='0.0.0.0', port=8084, debug=True)

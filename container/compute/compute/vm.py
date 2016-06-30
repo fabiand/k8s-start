@@ -58,7 +58,13 @@ class LibvirtVm():
             print('Failed to open connection to the hypervisor')
             return
         try:
-            self._domain = self._conn.createXML(vm_desc)
+            ids = self._conn.listDomainsID()
+            if vm_desc is None:
+                assert len(ids) == 1
+                self._domain = self._conn.lookupByID(ids.pop())
+            else:
+                assert len(ids) == 0
+                self._domain = self._conn.createXML(vm_desc)
         except:
             print("Unexpected error:", sys.exc_info()[0])
 
