@@ -14,7 +14,7 @@
         "ports": [
             {
                 "name": "storage-cnt",
-                "port": 8084,
+                "port": 8083,
                 "targetPort": "storage-cnt"
             }
         ],

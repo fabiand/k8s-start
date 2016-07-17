@@ -17,7 +17,7 @@ class DiskTable extends React.Component {
         $.ajax({
             type: "GET",
             dataType: 'json',
-            url: 'http://localhost:8084/v1/volumes',
+            url: 'http://localhost:8083/v1/volumes',
             success: function(response){
             console.log(response);
             this.setState({volumes: response.volumes})
