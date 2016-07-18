@@ -4,8 +4,8 @@ import DiskTable from'./DiskList.jsx'
 class App extends React.Component {
    render() {
       return (
-         <div>
-            <DiskTable />
+      	 <div>
+			 <DiskTable />
          </div>
       );
    }
