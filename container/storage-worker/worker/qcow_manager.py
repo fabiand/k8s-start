@@ -28,3 +28,8 @@ def list_disk():
     result = glob.glob("{}/*.qcow2".format(_mount_point))
     filenames = [os.path.basename(file) for file in result]
     return filenames
+
+
+def delete_disk(name):
+    os.remove("{}/{}".format(_mount_point, name))
+    return {"result": "success"}

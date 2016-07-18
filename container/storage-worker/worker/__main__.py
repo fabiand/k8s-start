@@ -31,6 +31,11 @@ def status():
     return {"status": "ready"}
 
 
+@app.route('/v1/disks/<name>', method='DELETE')
+def delete(name):
+    return qcow_manager.delete_disk(name)
+
+
 @app.route('/v1/disks/<name>', method='POST')
 def create(name):
     size = request.json.get('size')
@@ -42,6 +47,6 @@ def create(name):
 
 @app.route('/v1/disks/')
 def list():
-    return {"result": qcow_manager.list_disk()}
+    return {"disks": qcow_manager.list_disk()}
 
 app.run(host='0.0.0.0', port=8084, debug=True, reloader=True)
