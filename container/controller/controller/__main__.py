@@ -72,7 +72,7 @@ def doms_delete(name):
     return doms.delete(name)
 
 
-@app.route('/v1/domains/<name>', method='PUT')
+@app.route('/v1/domains/<name>', method='POST')
 def doms_create(name):
     dom_spec = request.body.read().decode("utf8")
     return doms.create(name, dom_spec)
