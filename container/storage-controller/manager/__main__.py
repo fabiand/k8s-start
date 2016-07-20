@@ -1,11 +1,13 @@
 from bottle import Bottle, request, response, HTTPResponse
 from volume_manager import VolumeWorker
+import json
 
 app = Bottle()
 
 
 @app.error(405)
 def method_not_allowed(res):
+    print("Method Not Allowed")
     if request.method == 'OPTIONS':
         new_res = HTTPResponse()
         new_res.set_header('Access-Control-Allow-Origin', '*')
@@ -33,7 +35,8 @@ def status():
 
 @app.route('/v1/volumes/<volume>/<name>', method='POST')
 def create(volume, name):
-    size = request.json.get('size')
+    data = json.loads(request.body.read().decode("utf8"))
+    size = data.get('size')
     volume_worker = VolumeWorker(volume)
     return volume_worker.add_disk(name, size)
 

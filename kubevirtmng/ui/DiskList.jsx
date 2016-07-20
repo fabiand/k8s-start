@@ -56,13 +56,35 @@ class Volume extends React.Component {
       }
 
       this.fetchData = this.fetchData.bind(this);
+      this.handleClick = this.handleClick.bind(this);
     };
 
    componentWillMount() {
       this.fetchData();
    };
 
-   fetchData() {
+  handleClick() {
+    //todo : make some code to delete the disk
+    console.log("click disk")
+    var name = document.getElementById('disk_name').value
+    var diskSize = document.getElementById('disk_size').value
+
+    var requestData = { "size": diskSize }
+
+    $.ajax({
+            type: "POST",
+            dataType: 'json',
+            data: JSON.stringify(requestData),
+            url: 'http://localhost:8083/v1/volumes/'+this.props.data.name+'/'+name,
+            success: function(response){
+              console.log(response);
+              this.forceUpdate()
+            }.bind(this)
+           }
+          );
+  }
+
+  fetchData() {
         $.ajax({
             type: "GET",
             dataType: 'json',
@@ -73,8 +95,8 @@ class Volume extends React.Component {
             }.bind(this)
         });
 
-   };
-   render() {
+  };
+  render() {
       return (
         <tr>
         <td>
@@ -95,16 +117,16 @@ class Volume extends React.Component {
                   <div className="form-group">
                     <label className="col-sm-2 control-label">Disk Name</label>
                     <div className="col-sm-10">
-                      <input type="text" id="name" className="form-control"/>
+                      <input type="text" id="disk_name" className="form-control"/>
                     </div>
                     <label className="col-sm-2 control-label">Size in Gb</label>
                     <div className="col-sm-10">
-                      <input type="text" id="size" className="form-control"/>
+                      <input type="text" id="disk_size" className="form-control"/>
                     </div>
                   </div>
                   <div className="form-group">
                     <div className="col-sm-offset-2 col-sm-10">
-                      <button type="submit" className="btn btn-primary">Add</button>
+                      <button type="submit" className="btn btn-primary" onClick={this.handleClick} >Add</button>
                     </div>
                   </div>
                 </form>
@@ -115,7 +137,7 @@ class Volume extends React.Component {
         </td>
         </tr>
       );
-   }
+  }
 }
 
 
