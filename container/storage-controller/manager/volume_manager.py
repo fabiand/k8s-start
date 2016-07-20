@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 import urllib
+import httplib2
 
 from time import sleep
 from urllib import request
@@ -103,6 +104,17 @@ class VolumeWorker():
                 headers={'Content-Type': 'application/json'})
             response = request.urlopen(req)
             retVal = response.read()
+        except urllib.error.HTTPError as err:
+            retVal = {"result": "failed", "error": "{}".format(err)}
+        return retVal
+
+    def delete_disk(self, disk):
+        try:
+            h = httplib2.Http()
+            url = "http://{}.default:8084/v1/disks/{}".format(
+                self.service_name, disk)
+            (resp_headers, content) = h.request(url, "DELETE")
+            retVal = content
         except urllib.error.HTTPError as err:
             retVal = {"result": "failed", "error": "{}".format(err)}
         return retVal

@@ -1,7 +1,8 @@
-from bottle import Bottle, request, response
+from bottle import Bottle, request, response, HTTPResponse
 from volume_manager import VolumeWorker
 
 app = Bottle()
+
 
 @app.error(405)
 def method_not_allowed(res):
@@ -35,6 +36,12 @@ def create(volume, name):
     size = request.json.get('size')
     volume_worker = VolumeWorker(volume)
     return volume_worker.add_disk(name, size)
+
+
+@app.route('/v1/volumes/<volume>/<name>', method='DELETE')
+def delete(volume, name):
+    volume_worker = VolumeWorker(volume)
+    return volume_worker.delete_disk(name)
 
 
 @app.route('/v1/volumes/<volume>/', method='GET')
