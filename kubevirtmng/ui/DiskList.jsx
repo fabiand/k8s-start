@@ -132,7 +132,7 @@ class Disk extends React.Component {
   render() {
       return (
          <tr>
-            <td>Disk:{this.props.data}</td><td>  <button type="button" class="btn btn-primary">Delete</button> </td>
+            <td>Disk:{this.props.data}</td><td>  <button type="button" className="btn btn-primary">Delete</button> </td>
          </tr>
       );
   }
