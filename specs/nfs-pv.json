@@ -1,0 +1,19 @@
+{
+	"apiVersion": "v1",
+	"kind": "PersistentVolume",
+	"metadata": {
+		"name": "nfs"
+	},
+	"spec": {
+		"capacity": {
+			"storage": "10Gi"
+		},
+		"accessModes": [
+			"ReadWriteMany"
+		],
+		"nfs": {
+			"server": "10.247.126.77",
+			"path": "/srv/nfs"
+		}
+	}
+}

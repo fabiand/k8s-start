@@ -22,23 +22,33 @@
 # Author(s): Fabian Deutsch <fabiand@redhat.com>
 #
 
-from bottle import Bottle, request, response, HTTPResponse
-from controller.lib import Domains
+import json
+import os
+import requests
+import vm
+
+from bottle import Bottle
+from bottle import HTTPResponse
+from bottle import request
+from bottle import response
 
 
-doms = Domains()
+def download_vm_defenition():
+    url = os.getenv("DOMAIN_HTTP_URL")
+    print("Fetching URL %s" % url)
+    value = requests.get(url).text
+
+    try:
+        print("Assuming etcd source, trying to parse ...")
+        value = json.loads(requests.get(url).text)["node"]["value"]
+        print("node value looks okay")
+    except:
+        print("Failed to parse json, returning raw data")
+
+    print(value)
+    return value
+
 app = Bottle()
-
-
-@app.hook('after_request')
-def enable_cors():
-    """
-    You need to add some headers to each request.
-    Don't use the wildcard '*' for Access-Control-Allow-Origin in production.
-    """
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'PUT, GET, POST, DELETE, OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
 
 
 @app.error(405)
@@ -62,31 +72,30 @@ def status():
     return {"status": "ready"}
 
 
-@app.route('/v1/domains/')
+@app.route('/v1/vm/status')
 def doms_list():
-    return {"available": doms.list_available(),
-            "running": doms.list_running()}
+    machine = vm.LibvirtVm()
+    if machine is not None:
+        return {"status": machine.state()}
+    return {"status": "missing"}
 
 
-@app.route('/v1/domains/<name>', method='GET')
-def doms_show(name):
-    return doms.show(name)
+@app.route('/v1/vm/stop', method='DELETE')
+def doms_show():
+    machine = vm.LibvirtVm()
+    if machine is not None:
+        return {"status": machine.stop()}
+    return {"status": "failed"}
 
 
-@app.route('/v1/domains/<name>/connection/uri', method='GET')
+#TODO : return some URI for console
+@app.route('/v1/vm/uri', method='GET')
 def doms_status(name):
-    return doms.connection_uri(name)
+    return {"status": "todo"}
 
 
-@app.route('/v1/domains/<name>', method='DELETE')
-def doms_delete(name):
-    return doms.delete(name)
-
-
-@app.route('/v1/domains/<name>', method='POST')
-def doms_create(name):
-    dom_spec = request.body.read().decode("utf8")
-    return doms.create(name, dom_spec)
-
-
-app.run(host='0.0.0.0', port=8084, debug=True, reloader=True)
+#TODO find how to make it thread safe
+desc = download_vm_defenition()
+xml = vm.render_dom(json.loads(desc))
+vm.LibvirtVm(xml)
+app.run(host='0.0.0.0', port=8084, debug=True)

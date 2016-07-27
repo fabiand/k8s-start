@@ -1,0 +1,57 @@
+{
+    "apiVersion": "v1",
+    "kind": "ReplicationController",
+    "metadata": {
+        "name": "nfs-server"
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "role": "nfs-server"
+        },
+        "template": {
+            "metadata": {
+                "labels": {
+                    "role": "nfs-server"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "docker.io/tlitovsk/fedora-nfs",
+                        "name": "nfs-server",
+                        "imagePullPolicy": "Always",
+                        "ports": [
+                            {
+                                "containerPort": 2049,
+                                "name": "nfs"
+                            },
+                            {
+                                "containerPort": 111,
+                                "name": "rpc"
+                            }
+                        ],
+                        "securityContext": {
+                            "privileged": true
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/sys/fs/cgroup",
+                                "name": "cgroups",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "volumes": [
+                    {
+                        "hostPath": {
+                            "path": "/sys/fs/cgroup"
+                        },
+                        "name": "cgroups"
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -27,6 +27,15 @@ import json
 import os
 from .utils import jsonpath
 
+from jinja2 import Environment
+from jinja2 import FileSystemLoader
+
+abspath = os.path.abspath(__file__)
+file_dir = os.path.dirname(abspath)
+print(file_dir)
+jinja_env = Environment(
+    loader=FileSystemLoader('{}/templates'.format(file_dir)))
+
 
 def kubectl(args, expr=None, **kwargs):
     app = os.environ.get("KUBECTL", "kubectl")
@@ -60,76 +69,6 @@ def get_pod_node(pod):
 
 
 class KubeDomainRuntime():
-    VM_RC_SPEC = """
-apiVersion: v1
-kind: ReplicationController
-metadata:
-  name: compute-rc-{DOMNAME}
-  labels:
-    app: compute-rc
-    domain: {DOMNAME}
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: compute
-        domain: {DOMNAME}
-    spec:
-      volumes:
-      - name: host
-        hostPath:
-          path: /
-      containers:
-      - name: compute
-        image: docker.io/fabiand/compute:latest
-        securityContext:
-          privileged: true
-        ports:
-        - containerPort: 1923
-          name: spice
-        - containerPort: 5900
-          name: vnc
-        - containerPort: 16509
-          name: libvirt
-        volumeMounts:
-        - name: host
-          mountPath: /host
-        env:
-        - name: LIBVIRT_DOMAIN
-          value: {DOMNAME}
-        - name: DOMAIN_HTTP_URL
-          value: {DOMAIN_HTTP_URL}
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "1000m"
-          limits:
-            memory: "1024Mi"
-            cpu: "4000m"
-    """
-
-    VM_SVC_SPEC = """
-apiVersion: v1
-kind: Service
-metadata:
-  name: libvirt-{DOMNAME}
-  labels:
-    app: compute-service
-    domain: {DOMNAME}
-spec:
-  selector:
-    app: compute
-    domain: {DOMNAME}
-  type: NodePort
-  ports:
-  - name: libvirt
-    port: 16509
-    nodePort: 30001
-  - name: vnc
-    port: 5900
-    nodePort: 30900
-    """
 
     def list(self):
         matches = kubectl(["-l", "app=compute-rc",
@@ -137,20 +76,17 @@ spec:
                           "items[*].metadata.labels.domain")
         return [m.value for m in matches] if matches else []
 
-    def create(self, domname):
-        def create(spec):
-            env = {
-                "DOMNAME": domname,
-                "DOMAIN_HTTP_URL": "http://%s:%s/v2/keys/domains/%s" %
-                (os.environ["CONTROLLER_SERVICE_HOST"],
-                 os.environ["CONTROLLER_SERVICE_PORT_ETCD_REST"],
-                    domname)}
-            spec = spec.format(**env)
-            print(spec)
-            kubectl(["create", "-f", "-"], input=bytes(spec, encoding="utf8"))
+    def create(self, domname, mount_volumes):
+        def create(template_name):
+            template = jinja_env.get_template(template_name)
+            print("MountVolumes")
+            print(mount_volumes)
+            yaml = template.render(name=domname, mounts=mount_volumes)
+            print(yaml)
+            kubectl(["create", "-f", "-"], input=bytes(yaml, encoding="utf8"))
 
-        create(self.VM_RC_SPEC)
-        create(self.VM_SVC_SPEC)
+        create("compute-service.yaml.in")
+        create("compute-rc.yaml.in")
 
     def delete(self, domname):
         kubectl(["delete", "rc",
